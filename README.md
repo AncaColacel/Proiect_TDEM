@@ -12,6 +12,7 @@ Sistemul va simula un flux continuu de date (evenimente de tip "book rating" sau
 
 ### 3. Seturi de date
 Vom utiliza dataset-ul **Goodreads Books**, disponibil pe platforma Kaggle.
+
 https://www.kaggle.com/datasets/jealousleopard/goodreadsbooks?resource=download
 
 * **Conținut:** Date despre peste 11.000 de volume, incluzând titlu, autor, rating mediu, ISBN, număr de pagini și numărul de recenzii.
