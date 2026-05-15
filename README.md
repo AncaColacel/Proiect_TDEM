@@ -1,29 +1,175 @@
-# Proiect_TDEM
-## Sistem de monitorizare și analiză a trendurilor literare în timp real
+# 📚 Proiect Real-Time Analytics: Goodreads Streaming
 
-### 1. Echipa
-* **Alexe Alexandra - Florentina** - SSA1-A
-* **Colăcel Anca - Maria** - SSA1-A
+Acest proiect monitorizează fluxul de date de la Goodreads folosind o arhitectură modernă de streaming:
+**Producer (Python) ➔ Kafka ➔ Flink SQL ➔ Postgres ➔ Grafana**
 
-### 2. Obiectivul Proiectului
-Scopul proiectului este dezvoltarea unei platforme de tip **Streaming Analytics** capabilă să proceseze volume mari de date despre cărți și recenzii, pentru a identifica tendințele de popularitate ale autorilor și genurilor literare.
+---
 
-Sistemul va simula un flux continuu de date (evenimente de tip "book rating" sau "new entry"), permițând calcularea unor indicatori de performanță (**KPIs**) în ferestre de timp glisante (ex: top autori cu cele mai bune rating-uri, volumele cu cel mai mare număr de pagini procesate în intervalul curent).
+## 🚀 Ghid de Pornire (Pas cu Pas)
 
-### 3. Seturi de date
-Vom utiliza dataset-ul **Goodreads Books**, disponibil pe platforma Kaggle.
+### 1. Pornirea Infrastructurii (Docker)
 
-* **Conținut:** Date despre peste 11.000 de volume, incluzând titlu, autor, rating mediu, ISBN, număr de pagini și numărul de recenzii.
-* **Format:** Fișier structurat `.csv`.
-* **Metodă de ingestie:** Datele vor fi citite din fișier printr-un script Python (**Producer**) și injectate în mod secvențial într-un cluster **Kafka** pentru a simula un flux de date în timp real.
+📍 Locație: Folderul rădăcină al proiectului (unde se află `docker-compose.yml`)
 
-### 4. Motoare de Procesare Utilizate
-Arhitectura proiectului se bazează pe următoarea stivă tehnologică:
+```bash
+# Șterge containerele vechi, pentru o pornire curată (fara -v ca sa nu sterg si volumele ca se pierde dashboard ul grafana)
+docker-compose down 
 
-* **Apache Kafka:** Utilizat ca broker de mesaje pentru ingestia și stocarea temporară a fluxurilor de date.
-* **Apache Flink:** Motorul principal de procesare. Acesta va fi responsabil pentru:
-    * Filtrarea datelor (ex: eliminarea intrărilor cu rating scăzut).
-    * Agregarea datelor folosind ferestre de timp (*Time Windows*).
-    * Calcularea statisticilor de tip "Top - K" (de exemplu, cei mai populari autori).
-* **Python:** Pentru scriptul de pre-procesare și trimitere a datelor către Kafka.
-* **Grafana:** Un dashboard simplu pentru vizualizarea rezultatelor procesate de Flink.
+# Construiește și pornește containerele în fundal
+docker-compose up --build -d
+```
+
+⏳ Așteaptă ~30 secunde pentru inițializare completă.
+
+---
+
+### 2. Pornirea Fluxului de Date (Producer)
+
+📍 Locație: `producer/`
+
+```bash
+python producer.py
+```
+
+✔ Citește CSV
+✔ Trimite JSON în Kafka
+
+---
+
+### 3. Lansarea Analizei (Flink SQL)
+
+📍 Se rulează în container
+
+```bash
+docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
+```
+
+✔ Vei primi un **Job ID**
+✔ Monitorizare: http://localhost:8081
+
+---
+
+### 4. Vizualizarea Rezultatelor (Grafana)
+
+Accesează:
+
+```
+http://localhost:3000
+```
+
+🔐 Login:
+
+```
+admin / admin
+```
+
+⚡ Activează:
+
+* Auto-refresh: 5s
+
+---
+
+## 📁 Structura Proiectului și Rolul Componentelor
+
+### 1. Folderul `flink/`
+
+* **Dockerfile**
+
+  * Configurează Flink
+  * Instalează Java 17
+  * Adaugă conectori (Kafka, JDBC, Postgres)
+
+* **sql/job.sql**
+
+  * Definește tabelele Kafka + Postgres
+  * Rulează agregări (`TUMBLE window`)
+
+---
+
+### 2. Folderul `producer/`
+
+* **producer.py**
+
+  * Simulează stream-ul
+  * Curăță coloane
+  * Trimite JSON în Kafka
+
+* **books.csv**
+
+  * Dataset Goodreads
+
+---
+
+### 3. Folderul `postgres/`
+
+* **init.sql**
+
+  * Creează tabele (ex: `top_authors`)
+  * Pregătește baza pentru Flink
+
+---
+
+### 4. Rădăcina Proiectului
+
+* **docker-compose.yml**
+
+Orchestrarea serviciilor:
+
+| Componentă        | Rol         |
+| ----------------- | ----------- |
+| Zookeeper & Kafka | Streaming   |
+| Postgres          | Stocare     |
+| Flink             | Procesare   |
+| Grafana           | Vizualizare |
+
+---
+
+## 🛠️ Comenzi de Verificare (Quick Fix)
+
+### ✔ Verifică datele în Postgres
+
+```bash
+docker exec -it books-postgres psql -U books -d books-postgres -c "SELECT * FROM top_authors LIMIT 5;"
+```
+
+---
+
+### ✔ Verifică log-uri Flink
+
+```bash
+docker logs books-flink-taskmanager --tail 100
+```
+
+---
+
+## 🧠 Arhitectura Finală
+
+```
+Producer (Python)
+        ↓
+      Kafka
+        ↓
+    Flink SQL
+        ↓
+     Postgres
+        ↓
+     Grafana
+```
+
+---
+
+## 🎯 Ce demonstrează proiectul
+
+✔ Streaming real-time
+✔ Procesare distribuită (Flink)
+✔ Persistență (Postgres)
+✔ Vizualizare live (Grafana)
+✔ Arhitectură modernă de date
+
+---
+
+Grafana inca ramane in picioare (comenzi de test)
+docker-compose stop
+docker-compose up -d
+docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
+python producer.py
