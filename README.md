@@ -173,3 +173,5 @@ docker-compose stop
 docker-compose up -d
 docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
 python producer.py
+docker exec -it books-kafka kafka-topics --create --topic literary_trends --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+docker exec -it books-postgres psql -U books -d books-postgres -c "TRUNCATE TABLE language_stats, publisher_metrics, top_authors;"

@@ -71,10 +71,10 @@ SELECT
     authors, 
     COUNT(*), 
     AVG(average_rating), 
-    TUMBLE_START(ts_ltz, INTERVAL '1' MINUTE), 
-    TUMBLE_END(ts_ltz, INTERVAL '1' MINUTE)
+    TUMBLE_START(ts_ltz, INTERVAL '20' SECONDS), 
+    TUMBLE_END(ts_ltz, INTERVAL '20' SECONDS)
 FROM books_input 
-GROUP BY authors, TUMBLE(ts_ltz, INTERVAL '1' MINUTE);
+GROUP BY authors, TUMBLE(ts_ltz, INTERVAL '20' SECONDS);
 
 -- Analiza B: Limbi
 INSERT INTO language_sink
@@ -82,16 +82,16 @@ SELECT
     language_code, 
     COUNT(*), 
     AVG(average_rating), 
-    TUMBLE_START(ts_ltz, INTERVAL '1' MINUTE)
+    TUMBLE_START(ts_ltz, INTERVAL '20' SECONDS)
 FROM books_input 
-GROUP BY language_code, TUMBLE(ts_ltz, INTERVAL '1' MINUTE);
+GROUP BY language_code, TUMBLE(ts_ltz, INTERVAL '20' SECONDS);
 
 -- Analiza C: Edituri
 INSERT INTO publisher_sink
 SELECT 
     publisher, 
     SUM(CAST(text_reviews_count AS BIGINT)), 
-    AVG(CAST(num_pages AS DOUBLE PRECISION)), 
-    TUMBLE_START(ts_ltz, INTERVAL '1' MINUTE)
+    SUM(num_pages), 
+    TUMBLE_START(ts_ltz, INTERVAL '20' SECONDS)
 FROM books_input 
-GROUP BY publisher, TUMBLE(ts_ltz, INTERVAL '1' MINUTE);
+GROUP BY publisher, TUMBLE(ts_ltz, INTERVAL '20' SECONDS);
