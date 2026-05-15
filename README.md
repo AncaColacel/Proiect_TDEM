@@ -185,3 +185,14 @@ docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job
 ```bash
 python producer.py
 ```
+
+```bash
+// asta e pentru crearea trendului pt kafka si mai trebuie data uneori manual
+docker exec -it books-kafka kafka-topics --create --topic literary_trends --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+```
+
+
+```bash
+// asta e pt golirea datelor din grafana
+docker exec -it books-postgres psql -U books -d books-postgres -c "TRUNCATE TABLE language_stats, publisher_metrics, top_authors;"
+```
