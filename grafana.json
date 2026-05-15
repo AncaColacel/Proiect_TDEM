@@ -644,7 +644,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  author as metric,\r\n  SUM(reads_count) as value\r\nFROM top_authors\r\nWHERE window_start > NOW() - INTERVAL '15 minutes'\r\nGROUP BY author\r\nORDER BY value DESC\r\nLIMIT 10;\r\n\r\n",
+          "rawSql": "SELECT\r\n  author as metric,\r\n  SUM(reads_count) as value\r\nFROM top_authors\r\nWHERE window_start > NOW() - INTERVAL '30 minutes'\r\nGROUP BY author\r\nORDER BY value DESC\r\nLIMIT 10;\r\n\r\n",
           "refId": "A",
           "sql": {
             "columns": [
