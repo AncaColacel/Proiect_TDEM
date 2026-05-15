@@ -1,0 +1,90 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: books-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - books-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: books-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - books-network
+
+  postgres:
+    image: postgres:16
+    container_name: books-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: books-postgres
+      POSTGRES_USER: books
+      POSTGRES_PASSWORD: books
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - postgres_data:/var/lib/postgresql/data # Persistență pentru datele din tabele
+    networks:
+      - books-network
+
+  flink-jobmanager:
+    build:
+      context: ./flink
+    container_name: books-flink-jobmanager
+    depends_on:
+      - kafka
+      - postgres
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    volumes:
+      - ./flink/sql:/opt/flink/sql:ro
+    networks:
+      - books-network
+
+  flink-taskmanager:
+    build:
+      context: ./flink
+    container_name: books-flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=10
+    networks:
+      - books-network
+    
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: books-grafana
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_storage:/var/lib/grafana
+    networks:
+      - books-network
+
+networks:
+  books-network:
+    driver: bridge
+
+volumes:
+  grafana_storage:
+  postgres_data:
