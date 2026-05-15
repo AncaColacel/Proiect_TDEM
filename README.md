@@ -168,8 +168,20 @@ Producer (Python)
 
 ---
 
-Grafana inca ramane in picioare (comenzi de test)
+## Grafana inca ramane in picioare (comenzi de test)
+
+```bash
 docker-compose stop
+```
+
+```bash
 docker-compose up -d
+```
+
+```bash
 docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
+```
+
+```bash
 python producer.py
+```
