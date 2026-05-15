@@ -5,38 +5,6 @@ Acest proiect monitorizează fluxul de date de la Goodreads folosind o arhitectu
 
 ---
 
-## Diagrama arhitecturala pentru Raport
-graph LR
-    subgraph "Sursă de Date"
-        CSV[(Dataset CSV)] --> Py[Python Producer]
-    end
-
-    subgraph "Ingestie (Broker)"
-        Py -->|JSON Events| Kafka{Apache Kafka}
-        subgraph "Topic: literary_trends"
-            Kafka
-        end
-    end
-
-    subgraph "Procesare (Stream Engine)"
-        Kafka -->|Processing Time Windows| Flink[Apache Flink SQL]
-        Flink -->|Aggregations: SUM, AVG| Flink
-    end
-
-    subgraph "Stocare (Sink)"
-        Flink -->|JDBC Connector| Postgres[(PostgreSQL)]
-    end
-
-    subgraph "Vizualizare (UI)"
-        Postgres -->|SQL Queries| Grafana[Grafana Dashboard]
-        Grafana -->|Auto-refresh 10s| User((Utilizator / Master))
-    end
-
-    style Kafka fill:#f96,stroke:#333,stroke-width:2px
-    style Flink fill:#69f,stroke:#333,stroke-width:2px
-    style Postgres fill:#3c3,stroke:#333,stroke-width:2px
-    style Grafana fill:#f9f,stroke:#333,stroke-width:2px
-
 ## 🚀 Ghid de Pornire (Pas cu Pas)
 
 ### 1. Pornirea Infrastructurii (Docker)
