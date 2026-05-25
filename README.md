@@ -83,6 +83,8 @@ admin / admin
 
   * Definește tabelele Kafka + Postgres
   * Rulează agregări (`TUMBLE window`)
+  * Calculează trenduri literare
+  * Generează recomandări explicabile
 
 ---
 
@@ -140,6 +142,20 @@ docker exec -it books-postgres psql -U books -d books-postgres -c "SELECT * FROM
 docker logs books-flink-taskmanager --tail 100
 ```
 
+### ✔ Verifică recomandările
+
+```bash
+docker exec -it books-postgres psql -U books -d books-postgres \
+-c "SELECT * FROM book_recommendations LIMIT 10;"
+```
+
+### ✔ Verifică trendurile
+
+```bash
+docker exec -it books-postgres psql -U books -d books-postgres \
+-c "SELECT * FROM literary_trends LIMIT 10;"
+```
+
 ---
 
 ## 🧠 Arhitectura Finală
@@ -158,6 +174,64 @@ Producer (Python)
 
 ---
 
+## 📊 Advanced Analytics
+
+Pe lângă agregările clasice (autori, limbi, edituri), proiectul extinde analiza prin două componente avansate:
+
+### 1. Explainable Book Recommendations
+
+Sistemul generează recomandări globale folosind un scor compozit:
+
+recommendation_score =
+
+0.6 × average_rating
++
+0.3 × log10(ratings_count +1)
++
+0.1 × log10(text_reviews_count +1)
+
+Se iau în calcul:
+
+- calitatea cărții (rating)
+- popularitatea (numărul de evaluări)
+- engagement-ul (review-uri)
+
+Fiecare recomandare include și o justificare textuală.
+
+---
+
+### 2. Real-Time Literary Trends
+
+Sistemul detectează autori aflați în trend folosind ferestre temporale de streaming.
+
+Pentru demonstrație:
+
+- fereastră: 20–30 secunde
+
+În producție:
+
+- 1h
+- 12h
+- 24h
+
+Trend score:
+
+trend_score =
+
+0.5 × count
++
+20 × average_rating
++
+10 × log10(sum(ratings_count)+1)
+
+Scorul combină:
+
+- frecvența aparițiilor
+- calitatea medie
+- popularitatea autorilor
+
+---
+
 ## 🎯 Ce demonstrează proiectul
 
 ✔ Streaming real-time
@@ -165,6 +239,9 @@ Producer (Python)
 ✔ Persistență (Postgres)
 ✔ Vizualizare live (Grafana)
 ✔ Arhitectură modernă de date
+✔ Detectare de trenduri literare în timp real
+✔ Sistem de recomandări explicabile
+✔ Analytics avansat peste simple agregări Top-K
 
 ---
 
