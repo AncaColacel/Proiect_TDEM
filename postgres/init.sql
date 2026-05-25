@@ -25,3 +25,28 @@ CREATE TABLE IF NOT EXISTS publisher_metrics (
     window_start TIMESTAMP,
     PRIMARY KEY (publisher, window_start)
 );
+
+--  Trenduri literare
+
+CREATE TABLE IF NOT EXISTS literary_trends (
+    trend_type TEXT,
+    trend_name TEXT,
+    count_1h BIGINT,
+    count_12h BIGINT,
+    count_24h BIGINT,
+    trend_score FLOAT,
+    window_start TIMESTAMP,
+    PRIMARY KEY (trend_name, window_start)
+);
+
+-- Recomandari prin scor
+
+CREATE TABLE IF NOT EXISTS book_recommendations (
+    title TEXT,
+    author TEXT,
+    average_rating FLOAT,
+    ratings_count BIGINT,
+    recommendation_score FLOAT,
+    reason TEXT,
+    generated_at TIMESTAMP
+);
