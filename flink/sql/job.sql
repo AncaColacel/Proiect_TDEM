@@ -78,6 +78,22 @@ CREATE TABLE recommendation_sink (
     'password' = 'books'
 );
 
+-- 6. Definire Sink: Clasificare carti
+CREATE TABLE book_classification_sink (
+    title STRING,
+    author STRING,
+    segment STRING,
+    average_rating FLOAT,
+    ratings_count BIGINT,
+    generated_at TIMESTAMP(3)
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:postgresql://books-postgres:5432/books-postgres',
+    'table-name' = 'book_classification',
+    'username' = 'books',
+    'password' = 'books'
+);
+
 -- ==========================================
 -- 5. EXECUTARE ANALIZE (Pornirea Job-urilor)
 -- ==========================================
@@ -140,37 +156,73 @@ FROM books_input
 WHERE average_rating >= 4.0
   AND ratings_count >= 1000;
 
--- Sink: Trenduri literare
-CREATE TABLE literary_trends_sink (
-    trend_type STRING,
-    trend_name STRING,
-    count_1h BIGINT,
-    count_12h BIGINT,
-    count_24h BIGINT,
-    trend_score FLOAT,
-    window_start TIMESTAMP(3)
+-- Sink: Cresteri accelerate
+CREATE TABLE fastest_growing_books_sink (
+    title STRING,
+    author STRING,
+    current_count BIGINT,
+    previous_count BIGINT,
+    growth_rate FLOAT,
+    avg_rating FLOAT,
+    window_start TIMESTAMP(3),
+    window_end TIMESTAMP(3)
 ) WITH (
     'connector' = 'jdbc',
     'url' = 'jdbc:postgresql://books-postgres:5432/books-postgres',
-    'table-name' = 'literary_trends',
+    'table-name' = 'fastest_growing_books',
     'username' = 'books',
     'password' = 'books'
 );
 
--- Analiza E: Trenduri literare pe autori
-INSERT INTO literary_trends_sink
+INSERT INTO fastest_growing_books_sink
 SELECT
-    'AUTHOR' AS trend_type,
-    authors AS trend_name,
-    COUNT(*) AS count_1h,
-    CAST(NULL AS BIGINT) AS count_12h,
-    CAST(NULL AS BIGINT) AS count_24h,
+    title,
+    authors AS author,
+    CAST(ratings_count AS BIGINT) AS current_count,
+    CAST(text_reviews_count AS BIGINT) AS previous_count,
+
     CAST(
-        COUNT(*) * 0.5
-        + AVG(average_rating) * 20
-        + LOG10(SUM(CAST(ratings_count AS BIGINT)) + 1) * 10
+        (
+            LOG10(CAST(ratings_count + 1 AS DOUBLE))
+            -
+            LOG10(CAST(text_reviews_count + 1 AS DOUBLE))
+        )
         AS FLOAT
-    ) AS trend_score,
-    TUMBLE_START(ts_ltz, INTERVAL '20' SECONDS) AS window_start
+    ) AS growth_rate,
+
+    average_rating,
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP(3)),
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP(3))
 FROM books_input
-GROUP BY authors, TUMBLE(ts_ltz, INTERVAL '20' SECONDS);
+WHERE ratings_count > 1000;
+
+-- Analiza F: Clasificare carti dupa calitate si popularitate
+INSERT INTO book_classification_sink
+SELECT
+    title,
+    authors AS author,
+    CASE
+        WHEN average_rating >= 4.2 AND ratings_count >= 100000
+            THEN 'Highly Rated & Popular'
+
+        WHEN average_rating >= 4.2 AND ratings_count < 100000
+            THEN 'Highly Rated but Niche'
+
+        WHEN average_rating >= 3.8
+             AND average_rating < 4.2
+             AND ratings_count >= 1000
+             AND ratings_count < 100000
+            THEN 'Moderately Popular'
+
+        WHEN average_rating < 4.0 AND ratings_count >= 100000
+            THEN 'Popular but Lower Rated'
+
+        WHEN ratings_count < 1000
+            THEN 'Low Visibility'
+
+        ELSE 'Average'
+    END AS segment,
+    average_rating,
+    CAST(ratings_count AS BIGINT),
+    CAST(CURRENT_TIMESTAMP AS TIMESTAMP(3)) AS generated_at
+FROM books_input;

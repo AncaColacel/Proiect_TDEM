@@ -82,9 +82,10 @@ admin / admin
 * **sql/job.sql**
 
   * Definește tabelele Kafka + Postgres
-  * Rulează agregări (`TUMBLE window`)
-  * Calculează trenduri literare
+  * Rulează agregări folosind ferestre de streaming (`TUMBLE`)
   * Generează recomandări explicabile
+  * Clasifică automat cărțile pe segmente
+  * Detectează titluri emergente în flux
 
 ---
 
@@ -108,6 +109,13 @@ admin / admin
 
   * Creează tabele (ex: `top_authors`)
   * Pregătește baza pentru Flink
+  * Creează tabelele necesare pentru rezultatele analizelor:
+    * top_authors
+    * language_stats
+    * publisher_metrics
+    * book_recommendations
+    * book_classification
+    * fastest_growing_books
 
 ---
 
@@ -176,12 +184,13 @@ Producer (Python)
 
 ## 📊 Advanced Analytics
 
-Pe lângă agregările clasice (autori, limbi, edituri), proiectul extinde analiza prin două componente avansate:
+Pe lângă agregările clasice (autori, limbi, edituri), proiectul extinde analiza prin componente avansate de procesare în timp real.
 
 ### 1. Explainable Book Recommendations
 
 Sistemul generează recomandări globale folosind un scor compozit:
 
+```text
 recommendation_score =
 
 0.6 × average_rating
@@ -189,6 +198,7 @@ recommendation_score =
 0.3 × log10(ratings_count +1)
 +
 0.1 × log10(text_reviews_count +1)
+```
 
 Se iau în calcul:
 
@@ -200,35 +210,43 @@ Fiecare recomandare include și o justificare textuală.
 
 ---
 
-### 2. Real-Time Literary Trends
+### 2. Smart Book Classification
 
-Sistemul detectează autori aflați în trend folosind ferestre temporale de streaming.
+Cărțile sunt clasificate automat în funcție de rating și popularitate:
 
-Pentru demonstrație:
+Categorii:
 
-- fereastră: 20–30 secunde
+- Highly Rated & Popular
+- Highly Rated but Niche
+- Moderately Popular
+- Popular but Lower Rated
+- Average
+- Low Visibility
 
-În producție:
+Această clasificare permite identificarea rapidă a profilului fiecărei cărți și reduce concentrarea într-o categorie generică.
 
-- 1h
-- 12h
-- 24h
+---
 
-Trend score:
+### 3. Emerging Titles Detection (Real-Time)
 
-trend_score =
+Sistemul detectează titluri cu interes emergent folosind un scor de creștere:
 
-0.5 × count
-+
-20 × average_rating
-+
-10 × log10(sum(ratings_count)+1)
+```text
+growth_rate =
 
-Scorul combină:
+log10(ratings_count +1)
+-
+log10(text_reviews_count +1)
+```
 
-- frecvența aparițiilor
-- calitatea medie
-- popularitatea autorilor
+Scorul urmărește relația dintre:
+
+- volumul evaluărilor
+- activitatea utilizatorilor
+- interesul generat în flux
+
+Sistemul nu identifică doar cele mai populare titluri, ci cărțile care prezintă interes accelerat în fluxul curent.
+
 
 ---
 
@@ -239,9 +257,10 @@ Scorul combină:
 ✔ Persistență (Postgres)
 ✔ Vizualizare live (Grafana)
 ✔ Arhitectură modernă de date
-✔ Detectare de trenduri literare în timp real
 ✔ Sistem de recomandări explicabile
 ✔ Analytics avansat peste simple agregări Top-K
+✔ Clasificare inteligentă a cărților
+✔ Detectare de titluri emergente în timp real
 
 ---
 

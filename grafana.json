@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "fieldConfig": {
         "defaults": {
@@ -72,7 +72,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -104,7 +104,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "fieldConfig": {
         "defaults": {
@@ -153,7 +153,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -185,7 +185,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "fieldConfig": {
         "defaults": {
@@ -265,7 +265,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -298,7 +298,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "fieldConfig": {
         "defaults": {
@@ -348,7 +348,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -381,7 +381,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "fieldConfig": {
         "defaults": {
@@ -526,7 +526,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -559,7 +559,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "dfm2d2i72g5xcd"
+        "uid": "efn7to8nd6g3kb"
       },
       "description": "",
       "fieldConfig": {
@@ -639,7 +639,7 @@
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "dfm2d2i72g5xcd"
+            "uid": "efn7to8nd6g3kb"
           },
           "editorMode": "code",
           "format": "table",
@@ -667,23 +667,220 @@
       ],
       "title": "Top 10 autori cititi",
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "efn7to8nd6g3kb"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 50
+      },
+      "id": 7,
+      "options": {
+        "displayMode": "basic",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "efn7to8nd6g3kb"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  LEFT(title, 55) AS metric,\n  ROUND(MAX(recommendation_score)::numeric, 2) AS value\nFROM book_recommendations\nGROUP BY title, author\nORDER BY value DESC\nLIMIT 10;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Top 10 recomandări generate automat",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "efn7to8nd6g3kb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 58
+      },
+      "id": 8,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "efn7to8nd6g3kb"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  segment AS metric,\n  COUNT(*) AS value\nFROM book_classification\nGROUP BY segment\nORDER BY value DESC;",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Distribuția cărților pe segmente",
+      "type": "barchart"
     }
   ],
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2026-05-26T09:32:40.000Z",
+    "to": "2026-05-26T09:52:00.000Z"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Books-dasboard",
   "uid": "efm2env0pbw1sc",
-  "version": 11,
+  "version": 7,
   "weekStart": ""
 }

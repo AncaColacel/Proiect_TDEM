@@ -27,17 +27,18 @@ CREATE TABLE IF NOT EXISTS publisher_metrics (
 );
 
 --  Trenduri literare
-
 CREATE TABLE IF NOT EXISTS literary_trends (
     trend_type TEXT,
     trend_name TEXT,
-    count_1h BIGINT,
-    count_12h BIGINT,
-    count_24h BIGINT,
+    window_count BIGINT,
+    avg_rating FLOAT,
+    total_ratings BIGINT,
     trend_score FLOAT,
     window_start TIMESTAMP,
-    PRIMARY KEY (trend_name, window_start)
+    window_end TIMESTAMP,
+    PRIMARY KEY (trend_type, trend_name, window_start)
 );
+
 
 -- Recomandari prin scor
 
@@ -48,5 +49,15 @@ CREATE TABLE IF NOT EXISTS book_recommendations (
     ratings_count BIGINT,
     recommendation_score FLOAT,
     reason TEXT,
+    generated_at TIMESTAMP
+);
+
+-- Clasificare carti dupa calitate si popularitate
+CREATE TABLE IF NOT EXISTS book_classification (
+    title TEXT,
+    author TEXT,
+    segment TEXT,
+    average_rating FLOAT,
+    ratings_count BIGINT,
     generated_at TIMESTAMP
 );
