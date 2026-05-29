@@ -1,4 +1,4 @@
-# Real-Time Analytics: Goodreads Streaming
+# Sistem Analiză Literară în Timp Real
 
 Arhitectură modernă de procesare a datelor în timp real, construită pe stiva:
 
@@ -34,7 +34,6 @@ Producer (Python)
 ### 1. Infrastructură (Docker)
 
 ```bash
-docker-compose down
 docker-compose up --build -d
 ```
 
