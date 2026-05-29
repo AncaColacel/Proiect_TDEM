@@ -1,8 +1,6 @@
 # Sistem Analiză Literară în Timp Real
 
-Arhitectură modernă de procesare a datelor în timp real, construită pe stiva:
-
-**Python Producer → Apache Kafka → Apache Flink SQL → PostgreSQL → Grafana**
+Arhitectură de procesare a datelor și identificarea trendurilor literare în timp real.
 
 ---
 
@@ -37,8 +35,6 @@ Producer (Python)
 docker-compose up --build -d
 ```
 
-Așteaptă ~30 secunde pentru inițializare.
-
 ### 2. Producer
 
 ```bash
@@ -59,8 +55,6 @@ Monitorizare Flink UI: `http://localhost:8081`
 ```
 http://localhost:3000   (admin / admin)
 ```
-
-Activează auto-refresh la 5s.
 
 ---
 
