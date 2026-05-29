@@ -1,172 +1,12 @@
-# 📚 Proiect Real-Time Analytics: Goodreads Streaming
+# Real-Time Analytics: Goodreads Streaming
 
-Acest proiect monitorizează fluxul de date de la Goodreads folosind o arhitectură modernă de streaming:
-**Producer (Python) ➔ Kafka ➔ Flink SQL ➔ Postgres ➔ Grafana**
+Arhitectură modernă de procesare a datelor în timp real, construită pe stiva:
 
----
-
-## 🚀 Ghid de Pornire (Pas cu Pas)
-
-### 1. Pornirea Infrastructurii (Docker)
-
-📍 Locație: Folderul rădăcină al proiectului (unde se află `docker-compose.yml`)
-
-```bash
-# Șterge containerele vechi, pentru o pornire curată (fara -v ca sa nu sterg si volumele ca se pierde dashboard ul grafana)
-docker-compose down 
-
-# Construiește și pornește containerele în fundal
-docker-compose up --build -d
-```
-
-⏳ Așteaptă ~30 secunde pentru inițializare completă.
+**Python Producer → Apache Kafka → Apache Flink SQL → PostgreSQL → Grafana**
 
 ---
 
-### 2. Pornirea Fluxului de Date (Producer)
-
-📍 Locație: `producer/`
-
-```bash
-python producer.py
-```
-
-✔ Citește CSV
-✔ Trimite JSON în Kafka
-
----
-
-### 3. Lansarea Analizei (Flink SQL)
-
-📍 Se rulează în container
-
-```bash
-docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
-```
-
-✔ Vei primi un **Job ID**
-✔ Monitorizare: http://localhost:8081
-
----
-
-### 4. Vizualizarea Rezultatelor (Grafana)
-
-Accesează:
-
-```
-http://localhost:3000
-```
-
-🔐 Login:
-
-```
-admin / admin
-```
-
-⚡ Activează:
-
-* Auto-refresh: 5s
-
----
-
-## 📁 Structura Proiectului și Rolul Componentelor
-
-### 1. Folderul `flink/`
-
-* **Dockerfile**
-
-  * Configurează Flink
-  * Instalează Java 17
-  * Adaugă conectori (Kafka, JDBC, Postgres)
-
-* **sql/job.sql**
-
-  * Definește tabelele Kafka + Postgres
-  * Rulează agregări folosind ferestre de streaming (`TUMBLE`)
-  * Generează recomandări explicabile
-  * Clasifică automat cărțile pe segmente
-  * Detectează titluri emergente în flux
-
----
-
-### 2. Folderul `producer/`
-
-* **producer.py**
-
-  * Simulează stream-ul
-  * Curăță coloane
-  * Trimite JSON în Kafka
-
-* **books.csv**
-
-  * Dataset Goodreads
-
----
-
-### 3. Folderul `postgres/`
-
-* **init.sql**
-
-  * Creează tabele (ex: `top_authors`)
-  * Pregătește baza pentru Flink
-  * Creează tabelele necesare pentru rezultatele analizelor:
-    * top_authors
-    * language_stats
-    * publisher_metrics
-    * book_recommendations
-    * book_classification
-    * fastest_growing_books
-
----
-
-### 4. Rădăcina Proiectului
-
-* **docker-compose.yml**
-
-Orchestrarea serviciilor:
-
-| Componentă        | Rol         |
-| ----------------- | ----------- |
-| Zookeeper & Kafka | Streaming   |
-| Postgres          | Stocare     |
-| Flink             | Procesare   |
-| Grafana           | Vizualizare |
-
----
-
-## 🛠️ Comenzi de Verificare (Quick Fix)
-
-### ✔ Verifică datele în Postgres
-
-```bash
-docker exec -it books-postgres psql -U books -d books-postgres -c "SELECT * FROM top_authors LIMIT 5;"
-```
-
----
-
-### ✔ Verifică log-uri Flink
-
-```bash
-docker logs books-flink-taskmanager --tail 100
-```
-
-### ✔ Verifică recomandările
-
-```bash
-docker exec -it books-postgres psql -U books -d books-postgres \
--c "SELECT * FROM book_recommendations LIMIT 10;"
-```
-
-### ✔ Verifică trendurile
-
-```bash
-docker exec -it books-postgres psql -U books -d books-postgres \
--c "SELECT * FROM literary_trends LIMIT 10;"
-```
-
----
-
-## 🧠 Arhitectura Finală
+## Arhitectură
 
 ```
 Producer (Python)
@@ -175,120 +15,117 @@ Producer (Python)
         ↓
     Flink SQL
         ↓
-     Postgres
+    PostgreSQL
         ↓
      Grafana
 ```
 
----
-
-## 📊 Advanced Analytics
-
-Pe lângă agregările clasice (autori, limbi, edituri), proiectul extinde analiza prin componente avansate de procesare în timp real.
-
-### 1. Explainable Book Recommendations
-
-Sistemul generează recomandări globale folosind un scor compozit:
-
-```text
-recommendation_score =
-
-0.6 × average_rating
-+
-0.3 × log10(ratings_count +1)
-+
-0.1 × log10(text_reviews_count +1)
-```
-
-Se iau în calcul:
-
-- calitatea cărții (rating)
-- popularitatea (numărul de evaluări)
-- engagement-ul (review-uri)
-
-Fiecare recomandare include și o justificare textuală.
+| Componentă | Rol |
+|---|---|
+| Zookeeper & Kafka | Message broker / streaming |
+| Apache Flink | Procesare distribuită în timp real |
+| PostgreSQL | Persistența rezultatelor |
+| Grafana | Vizualizare live |
 
 ---
 
-### 2. Smart Book Classification
+## Pornire
 
-Cărțile sunt clasificate automat în funcție de rating și popularitate:
-
-Categorii:
-
-- Highly Rated & Popular
-- Highly Rated but Niche
-- Moderately Popular
-- Popular but Lower Rated
-- Average
-- Low Visibility
-
-Această clasificare permite identificarea rapidă a profilului fiecărei cărți și reduce concentrarea într-o categorie generică.
-
----
-
-### 3. Emerging Titles Detection (Real-Time)
-
-Sistemul detectează titluri cu interes emergent folosind un scor de creștere:
-
-```text
-growth_rate =
-
-log10(ratings_count +1)
--
-log10(text_reviews_count +1)
-```
-
-Scorul urmărește relația dintre:
-
-- volumul evaluărilor
-- activitatea utilizatorilor
-- interesul generat în flux
-
-Sistemul nu identifică doar cele mai populare titluri, ci cărțile care prezintă interes accelerat în fluxul curent.
-
-
----
-
-## 🎯 Ce demonstrează proiectul
-
-✔ Streaming real-time
-✔ Procesare distribuită (Flink)
-✔ Persistență (Postgres)
-✔ Vizualizare live (Grafana)
-✔ Arhitectură modernă de date
-✔ Sistem de recomandări explicabile
-✔ Analytics avansat peste simple agregări Top-K
-✔ Clasificare inteligentă a cărților
-✔ Detectare de titluri emergente în timp real
-
----
-
-## Grafana inca ramane in picioare (comenzi de test)
+### 1. Infrastructură (Docker)
 
 ```bash
-docker-compose stop
+docker-compose down
+docker-compose up --build -d
 ```
 
+Așteaptă ~30 secunde pentru inițializare.
+
+### 2. Producer
+
 ```bash
-docker-compose up -d
+cd producer/
+python producer.py
 ```
+
+### 3. Flink SQL Job
 
 ```bash
 docker exec -it books-flink-jobmanager ./bin/sql-client.sh -f /opt/flink/sql/job.sql
 ```
 
-```bash
-python producer.py
+Monitorizare Flink UI: `http://localhost:8081`
+
+### 4. Grafana
+
+```
+http://localhost:3000   (admin / admin)
 ```
 
-```bash
-// asta e pentru crearea trendului pt kafka si mai trebuie data uneori manual
-docker exec -it books-kafka kafka-topics --create --topic literary_trends --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+Activează auto-refresh la 5s.
+
+---
+
+## Componente Analytics
+
+### Recomandări Explicabile
+
+Scor compozit per carte:
+
+```
+score = 0.6 × avg_rating
+      + 0.3 × log10(ratings_count + 1)
+      + 0.1 × log10(text_reviews_count + 1)
 ```
 
+Combină calitatea, popularitatea și engagement-ul utilizatorilor. Fiecare recomandare include o justificare textuală generată automat.
+
+### Clasificare Inteligentă
+
+Cărțile sunt clasificate automat în șase profile pe baza ratingului și popularității: *Highly Rated & Popular*, *Highly Rated but Niche*, *Moderately Popular*, *Popular but Lower Rated*, *Average*, *Low Visibility*.
+
+### Detectare Titluri Emergente
+
+```
+growth_rate = log10(ratings_count + 1) - log10(text_reviews_count + 1)
+```
+
+Identifică titluri cu interes accelerat în flux — nu doar cele mai populare, ci cele cu creștere rapidă în timp real.
+
+---
+
+## Structura Proiectului
+
+```
+├── docker-compose.yml
+├── producer/
+│   ├── producer.py        # Simulare stream, trimitere JSON în Kafka
+│   └── books.csv          # Dataset Goodreads
+├── flink/
+│   ├── Dockerfile         # Flink + Java 17 + conectori Kafka/JDBC
+│   └── sql/job.sql        # Definiții tabele, agregări, ferestre TUMBLE
+└── postgres/
+    └── init.sql           # Creare tabele rezultate
+```
+
+---
+
+## Comenzi Utile
 
 ```bash
-// asta e pt golirea datelor din grafana
-docker exec -it books-postgres psql -U books -d books-postgres -c "TRUNCATE TABLE language_stats, publisher_metrics, top_authors;"
+# Verificare date PostgreSQL
+docker exec -it books-postgres psql -U books -d books-postgres \
+  -c "SELECT * FROM top_authors LIMIT 5;"
+
+# Verificare recomandări
+docker exec -it books-postgres psql -U books -d books-postgres \
+  -c "SELECT * FROM book_recommendations LIMIT 10;"
+
+# Loguri Flink
+docker logs books-flink-taskmanager --tail 100
+
+# Creare topic Kafka (dacă lipsește)
+docker exec -it books-kafka kafka-topics --create \
+  --topic literary_trends --bootstrap-server localhost:9092 \
+  --partitions 1 --replication-factor 1
+
 ```
