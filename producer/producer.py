@@ -21,7 +21,7 @@ def send_data():
         print("Eroare: Nu am găsit books.csv în folderul data/.")
         return
 
-    # Curatare numele coloanele
+    # Curățare numele coloanele
     df.columns = [col.strip() for col in df.columns]
     
     print(f"Am încărcat {len(df)} cărți. Începe transmisia...")

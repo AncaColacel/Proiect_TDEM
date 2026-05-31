@@ -58,9 +58,9 @@ http://localhost:3000   (admin / admin)
 
 ---
 
-## Componente Analytics
+## Componente analytics
 
-### Recomandări Explicabile
+### Recomandări explicabile
 
 Scor compozit per carte:
 
@@ -72,11 +72,11 @@ score = 0.6 × avg_rating
 
 Combină calitatea, popularitatea și engagement-ul utilizatorilor. Fiecare recomandare include o justificare textuală generată automat.
 
-### Clasificare Inteligentă
+### Clasificare inteligentă
 
 Cărțile sunt clasificate automat în șase profile pe baza ratingului și popularității: *Highly Rated & Popular*, *Highly Rated but Niche*, *Moderately Popular*, *Popular but Lower Rated*, *Average*, *Low Visibility*.
 
-### Detectare Titluri Emergente
+### Detectare titluri emergente
 
 ```
 growth_rate = log10(ratings_count + 1) - log10(text_reviews_count + 1)
@@ -86,7 +86,7 @@ Identifică titluri cu interes accelerat în flux — nu doar cele mai populare,
 
 ---
 
-## Structura Proiectului
+## Structura proiectului
 
 ```
 ├── docker-compose.yml
@@ -102,7 +102,7 @@ Identifică titluri cu interes accelerat în flux — nu doar cele mai populare,
 
 ---
 
-## Comenzi Utile
+## Comenzi utile
 
 ```bash
 # Verificare date PostgreSQL

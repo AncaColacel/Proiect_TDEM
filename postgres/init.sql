@@ -1,4 +1,4 @@
--- Tabelul Top Autori
+-- Tabelul Top autori
 CREATE TABLE IF NOT EXISTS top_authors (
     author TEXT,
     reads_count BIGINT,
@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS top_authors (
     PRIMARY KEY (author, window_start)
 );
 
--- Tabel Statistici pe Limbi (pentru Pie Chart)
+-- Tabel statistici pe limbi (pentru Pie Chart)
 CREATE TABLE IF NOT EXISTS language_stats (
     language_code VARCHAR(50),
     book_count BIGINT,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS language_stats (
     PRIMARY KEY (language_code, window_start)
 );
 
--- Tabel Statistici Edituri (pentru Table/Bar Chart)
+-- Tabel statistici edituri (pentru Table/Bar Chart)
 CREATE TABLE IF NOT EXISTS publisher_metrics (
     publisher TEXT,
     total_reviews BIGINT,
@@ -40,8 +40,7 @@ CREATE TABLE IF NOT EXISTS literary_trends (
 );
 
 
--- Recomandari prin scor
-
+-- Recomandări prin scor
 CREATE TABLE IF NOT EXISTS book_recommendations (
     title TEXT,
     author TEXT,
@@ -52,7 +51,7 @@ CREATE TABLE IF NOT EXISTS book_recommendations (
     generated_at TIMESTAMP
 );
 
--- Clasificare carti dupa calitate si popularitate
+-- Clasificare cărți după calitate și popularitate
 CREATE TABLE IF NOT EXISTS book_classification (
     title TEXT,
     author TEXT,

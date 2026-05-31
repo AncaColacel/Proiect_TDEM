@@ -35,7 +35,7 @@ services:
       POSTGRES_PASSWORD: books
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-      - postgres_data:/var/lib/postgresql/data # Persistență pentru datele din tabele
+      - postgres_data:/var/lib/postgresql/data 
     networks:
       - books-network
 
